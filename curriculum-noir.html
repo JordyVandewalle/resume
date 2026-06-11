@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
   <title>Jordy Vandewalle — Curriculum Vitæ</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="apple-touch-icon" href="favicon.svg" />
@@ -226,7 +227,7 @@
         <span class="dot">✦</span>
         <span>Six languages</span>
         <span class="dot">✦</span>
-        <a class="link" data-cursor href="mailto:jordy.vandewalle@hotmail.com">jordy.vandewalle@hotmail.com</a>
+        <a class="link js-mail" data-cursor data-e="am9yZHkudmFuZGV3YWxsZUBob3RtYWlsLmNvbQ==" href="#" rel="nofollow">Email</a>
         <span class="dot">✦</span>
         <a class="link" data-cursor href="https://www.linkedin.com/in/jordy-vandewalle" target="_blank" rel="noopener">LinkedIn</a>
       </div>
@@ -349,6 +350,9 @@
   <script>
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const fine = window.matchMedia("(pointer: fine)").matches;
+
+    // Assemble email at runtime so the raw address never appears in the page source
+    document.querySelectorAll(".js-mail").forEach(a => { a.href = "mailto:" + atob(a.dataset.e); });
 
     // ---- Kinetic name: split into words & letters, masked reveal ----
     (function () {

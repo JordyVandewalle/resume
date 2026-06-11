@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
   <title>Jordy Vandewalle — Technical Product Owner</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="apple-touch-icon" href="favicon.svg" />
@@ -248,7 +249,7 @@
       <div class="role">Technical Product Owner — <b>turning tech into value</b></div>
       <div class="location">📍 Valencia, Spain · 🌍 6 languages</div>
       <div class="contacts">
-        <a href="mailto:jordy.vandewalle@hotmail.com">✉️ Email me</a>
+        <a class="js-mail" data-e="am9yZHkudmFuZGV3YWxsZUBob3RtYWlsLmNvbQ==" href="#" rel="nofollow">✉️ Email me</a>
         <a href="https://www.linkedin.com/in/jordy-vandewalle" target="_blank" rel="noopener">💼 LinkedIn</a>
       </div>
     </header>
@@ -372,6 +373,9 @@
   </div>
 
   <script>
+    // Assemble email at runtime so the raw address never appears in the page source
+    document.querySelectorAll(".js-mail").forEach(a => { a.href = "mailto:" + atob(a.dataset.e); });
+
     // Scroll reveal
     const io = new IntersectionObserver((entries) => {
       entries.forEach(e => {

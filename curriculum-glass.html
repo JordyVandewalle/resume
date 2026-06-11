@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
   <title>Jordy Vandewalle — Glass</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="apple-touch-icon" href="favicon.svg" />
@@ -14,6 +15,7 @@
       --glass-strong: rgba(255, 255, 255, 0.62);
       --brd: rgba(255, 255, 255, 0.65);
       --row: rgba(255, 255, 255, 0.35);
+      --tag: rgba(120, 120, 128, 0.14);
       --shadow: 0 14px 44px rgba(31, 38, 135, 0.18);
       --track: rgba(120, 120, 128, 0.22);
       --b1: #ff8fb1; --b2: #7aa8ff; --b3: #b78cff; --b4: #ffd27a; --b5: #6ee7d6;
@@ -26,6 +28,7 @@
       --glass-strong: rgba(50, 52, 66, 0.6);
       --brd: rgba(255, 255, 255, 0.16);
       --row: rgba(255, 255, 255, 0.06);
+      --tag: rgba(255, 255, 255, 0.1);
       --shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
       --track: rgba(120, 120, 128, 0.3);
       --b1: #ff5c8a; --b2: #4f7cff; --b3: #9b5cff; --b4: #ff9d3c; --b5: #1fd1b5;
@@ -58,8 +61,6 @@
       0%,100% { transform: translate(0,0) scale(1); }
       50%     { transform: translate(3vw, 5vh) scale(1.12); }
     }
-
-    /* parallax offset applied via JS variables */
     .blobs.parallax { transform: translate(var(--px, 0px), var(--py, 0px)); transition: transform 0.4s ease-out; }
 
     /* ---------- Layout ---------- */
@@ -97,17 +98,16 @@
       border: 1px solid var(--brd);
       border-radius: 28px;
       box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.4);
-      padding: 24px;
-      transition: transform 0.3s ease;
+      padding: 24px 26px;
     }
-    .w-title { font-size: 13px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; color: var(--text2); margin-bottom: 16px; }
+    .w-title { font-size: 13px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; color: var(--text2); margin-bottom: 18px; }
 
     .w-profile { grid-column: span 4; }
-    .w-exp { grid-column: span 2; grid-row: span 2; }
-    .w-lang { grid-column: span 2; }
-    .w-skills { grid-column: span 2; }
-    .w-edu { grid-column: span 2; }
-    .w-cred { grid-column: span 2; }
+    .w-exp     { grid-column: span 4; }   /* full width, now with details */
+    .w-skills  { grid-column: span 2; }
+    .w-lang    { grid-column: span 2; }   /* now sits lower, beside Expertise */
+    .w-edu     { grid-column: span 2; }
+    .w-cred    { grid-column: span 2; }
 
     @media (max-width: 820px) {
       .grid { grid-template-columns: 1fr; }
@@ -137,35 +137,41 @@
     .switch input:checked + .slider { background: #34c759; }
     .switch input:checked + .slider::before { transform: translateX(20px); }
 
-    /* Experience list */
-    .list { display: flex; flex-direction: column; gap: 4px; }
-    .row { display: flex; align-items: center; gap: 14px; padding: 12px; border-radius: 16px; transition: background 0.2s ease; }
-    .row:hover { background: var(--row); }
-    .row .ic { width: 40px; height: 40px; border-radius: 12px; flex: none; display: flex; align-items: center; justify-content: center; font-size: 19px; color: #fff; }
-    .row .tx { flex: 1; min-width: 0; }
-    .row .tx b { font-weight: 600; font-size: 16px; display: block; }
-    .row .tx span { font-size: 13px; color: var(--text2); }
-    .row .chev { color: var(--text2); font-size: 18px; opacity: 0.6; }
+    /* Experience — detailed, two-column rows */
+    .xp-list { display: flex; flex-direction: column; }
+    .xp {
+      display: grid; grid-template-columns: 290px 1fr; gap: 30px; align-items: start;
+      padding: 18px 0; border-top: 1px solid var(--row);
+    }
+    .xp:first-child { border-top: none; padding-top: 2px; }
+    .xp .head { display: flex; gap: 14px; align-items: flex-start; }
+    .xp .ic { width: 44px; height: 44px; border-radius: 13px; flex: none; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff; box-shadow: 0 6px 16px rgba(0,0,0,0.16); }
+    .xp .role { font-weight: 600; font-size: 16px; line-height: 1.25; }
+    .xp .meta { font-size: 13px; color: var(--text2); margin-top: 3px; }
+    .xp .desc { font-size: 14.5px; line-height: 1.6; color: var(--text); opacity: 0.82; }
+    @media (max-width: 700px) {
+      .xp { grid-template-columns: 1fr; gap: 10px; }
+      .xp .desc { padding-left: 58px; }
+    }
+
+    /* Expertise — readable pills (no icons) */
+    .tags { display: flex; flex-wrap: wrap; gap: 10px; }
+    .tag {
+      display: inline-flex; align-items: center; gap: 9px;
+      font-size: 14px; font-weight: 500; color: var(--text);
+      padding: 10px 15px; border-radius: 14px;
+      background: var(--tag); border: 1px solid var(--brd);
+    }
+    .tag .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
 
     /* Language rings */
-    .rings { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px 8px; }
+    .rings { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px 8px; }
     .ring { text-align: center; }
-    .ring svg { width: 78px; height: 78px; }
+    .ring svg { width: 76px; height: 76px; }
     .ring .trk { fill: none; stroke: var(--track); stroke-width: 8; }
     .ring .prg { fill: none; stroke-width: 8; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; stroke-dasharray: 214; stroke-dashoffset: 214; transition: stroke-dashoffset 1.5s cubic-bezier(0.16,1,0.3,1); }
     .ring .nm { font-size: 14px; font-weight: 600; margin-top: 2px; }
     .ring .lv { font-size: 11px; color: var(--text2); }
-
-    /* Skills app icons */
-    .apps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px 10px; }
-    .app { text-align: center; cursor: default; }
-    .app .tile {
-      width: 100%; aspect-ratio: 1; border-radius: 22px; display: flex; align-items: center; justify-content: center;
-      font-size: 26px; color: #fff; margin: 0 auto 6px; box-shadow: 0 8px 20px rgba(0,0,0,0.18);
-      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
-    }
-    .app:hover .tile { transform: translateY(-4px) scale(1.06); }
-    .app .nm { font-size: 11px; color: var(--text2); line-height: 1.25; }
 
     /* Education / credentials */
     .mini { display: flex; flex-direction: column; gap: 2px; }
@@ -259,39 +265,68 @@
         </div>
       </section>
 
-      <!-- EXPERIENCE -->
+      <!-- EXPERIENCE (detailed, full width) -->
       <section class="widget w-exp reveal">
         <div class="w-title">Experience</div>
-        <div class="list">
-          <div class="row">
-            <div class="ic g4">🚀</div>
-            <div class="tx"><b>Product Owner</b><span>PHPro · 2025 — Present</span></div>
-            <div class="chev">›</div>
+        <div class="xp-list">
+          <div class="xp">
+            <div class="head">
+              <div class="ic g4">🚀</div>
+              <div><div class="role">Product Owner</div><div class="meta">PHPro · 2025 — Present · Valencia</div></div>
+            </div>
+            <p class="desc">Bridging business goals and technical execution, leveraging my Magento background and
+               client engagement to drive product success. I lead cross-functional teams delivering high-impact
+               features aligned with customer needs and market trends.</p>
           </div>
-          <div class="row">
-            <div class="ic g2">🛠️</div>
-            <div class="tx"><b>Magento 2 Developer</b><span>PHPro · 2022 — 2025</span></div>
-            <div class="chev">›</div>
+          <div class="xp">
+            <div class="head">
+              <div class="ic g2">🛠️</div>
+              <div><div class="role">Magento 2 Developer</div><div class="meta">PHPro · 2022 — 2025 · Valencia</div></div>
+            </div>
+            <p class="desc">Worked on Obelink — a large Magento 2 marketplace with integrations such as Mirakl and
+               Akeneo, built on the Hyvä theme.</p>
           </div>
-          <div class="row">
-            <div class="ic g3">💻</div>
-            <div class="tx"><b>Junior Magento 2 &amp; PHP Dev</b><span>Your Mind Our Work · 2021 — 2022</span></div>
-            <div class="chev">›</div>
+          <div class="xp">
+            <div class="head">
+              <div class="ic g3">💻</div>
+              <div><div class="role">Junior Magento 2 &amp; PHP Developer</div><div class="meta">Your Mind Our Work · 2021 — 2022 · Roeselare</div></div>
+            </div>
+            <p class="desc">Built and maintained Magento 2 / PHP e-commerce solutions, growing from fundamentals
+               into full feature delivery.</p>
           </div>
-          <div class="row">
-            <div class="ic g5">🎨</div>
-            <div class="tx"><b>Front-end Intern</b><span>Cwb Spain · 2020</span></div>
-            <div class="chev">›</div>
+          <div class="xp">
+            <div class="head">
+              <div class="ic g5">🎨</div>
+              <div><div class="role">Front-end Development Intern</div><div class="meta">Cwb Spain · 2020 · Valencia</div></div>
+            </div>
+            <p class="desc">Front-end development internship abroad — where the Spanish chapter began.</p>
           </div>
-          <div class="row">
-            <div class="ic g1">🛍️</div>
-            <div class="tx"><b>Sales Assistant</b><span>BESTSELLER · 2018 — 2021</span></div>
-            <div class="chev">›</div>
+          <div class="xp">
+            <div class="head">
+              <div class="ic g1">🛍️</div>
+              <div><div class="role">Sales Assistant</div><div class="meta">BESTSELLER · 2018 — 2021 · Roeselare</div></div>
+            </div>
+            <p class="desc">Customer-facing retail role that sharpened communication and commercial instincts.</p>
           </div>
         </div>
       </section>
 
-      <!-- LANGUAGES -->
+      <!-- EXPERTISE (readable, no icons) -->
+      <section class="widget w-skills reveal">
+        <div class="w-title">Expertise</div>
+        <div class="tags">
+          <span class="tag"><span class="dot g4"></span>Stakeholder Communication</span>
+          <span class="tag"><span class="dot g2"></span>Cross-Functional Leadership</span>
+          <span class="tag"><span class="dot g1"></span>Product Vision</span>
+          <span class="tag"><span class="dot g3"></span>Roadmapping</span>
+          <span class="tag"><span class="dot g5"></span>Agile Delivery</span>
+          <span class="tag"><span class="dot g6"></span>Magento 2</span>
+          <span class="tag"><span class="dot g7"></span>eCommerce Strategy</span>
+          <span class="tag"><span class="dot g8"></span>Client Engagement</span>
+        </div>
+      </section>
+
+      <!-- LANGUAGES (now lower, beside Expertise) -->
       <section class="widget w-lang reveal">
         <div class="w-title">Languages</div>
         <div class="rings">
@@ -301,21 +336,6 @@
           <div class="ring"><svg viewBox="0 0 80 80"><circle class="trk" cx="40" cy="40" r="34"/><circle class="prg" stroke="url(#rg4)" cx="40" cy="40" r="34" data-pct="45"/></svg><div class="nm">Italian</div><div class="lv">Limited</div></div>
           <div class="ring"><svg viewBox="0 0 80 80"><circle class="trk" cx="40" cy="40" r="34"/><circle class="prg" stroke="url(#rg5)" cx="40" cy="40" r="34" data-pct="40"/></svg><div class="nm">French</div><div class="lv">Limited</div></div>
           <div class="ring"><svg viewBox="0 0 80 80"><circle class="trk" cx="40" cy="40" r="34"/><circle class="prg" stroke="url(#rg6)" cx="40" cy="40" r="34" data-pct="22"/></svg><div class="nm">German</div><div class="lv">Elementary</div></div>
-        </div>
-      </section>
-
-      <!-- SKILLS -->
-      <section class="widget w-skills reveal">
-        <div class="w-title">Expertise</div>
-        <div class="apps">
-          <div class="app"><div class="tile g4">🧭</div><div class="nm">Product Vision</div></div>
-          <div class="app"><div class="tile g2">🗺️</div><div class="nm">Roadmapping</div></div>
-          <div class="app"><div class="tile g1">🤝</div><div class="nm">Stakeholders</div></div>
-          <div class="app"><div class="tile g3">👥</div><div class="nm">Leadership</div></div>
-          <div class="app"><div class="tile g5">🔄</div><div class="nm">Agile</div></div>
-          <div class="app"><div class="tile g6">🛒</div><div class="nm">Magento 2</div></div>
-          <div class="app"><div class="tile g7">🛍️</div><div class="nm">eCommerce</div></div>
-          <div class="app"><div class="tile g8">♟️</div><div class="nm">Strategy</div></div>
         </div>
       </section>
 
@@ -342,7 +362,7 @@
 
   <!-- Dock -->
   <nav class="dock">
-    <a class="g2" href="mailto:jordy.vandewalle@hotmail.com"><span class="tip">Email</span>✉️</a>
+    <a class="g2 js-mail" data-e="am9yZHkudmFuZGV3YWxsZUBob3RtYWlsLmNvbQ==" href="#" rel="nofollow"><span class="tip">Email</span>✉️</a>
     <a class="g4" href="https://www.linkedin.com/in/jordy-vandewalle" target="_blank" rel="noopener"><span class="tip">LinkedIn</span>in</a>
     <a class="g3" href="https://maps.google.com/?q=Valencia,Spain" target="_blank" rel="noopener"><span class="tip">Valencia</span>📍</a>
     <a class="g5" href="index.html"><span class="tip">All variants</span>▦</a>
@@ -350,6 +370,9 @@
 
   <script>
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // ----- Assemble email at runtime so the raw address never appears in the page source -----
+    document.querySelectorAll(".js-mail").forEach(a => { a.href = "mailto:" + atob(a.dataset.e); });
 
     // ----- Theme: init from system, toggle on switch -----
     const themeToggle = document.getElementById("theme");

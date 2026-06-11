@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Jordy Vandewalle — Blueprint</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="apple-touch-icon" href="favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a1f3c;
+      --cyan: #5cc8ff;
+      --line2: rgba(124, 206, 255, 0.42);
+      --ink: #e7f4ff;
+      --dim: #8fb6d6;
+      --grid: rgba(92, 200, 255, 0.07);
+      --grid2: rgba(92, 200, 255, 0.14);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+        linear-gradient(var(--grid2) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid2) 1px, transparent 1px);
+      background-size: 26px 26px, 26px 26px, 130px 130px, 130px 130px;
+      background-attachment: fixed;
+      color: var(--ink);
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      cursor: crosshair;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    a { cursor: pointer; }
+
+    /* CAD crosshair + coordinate readout */
+    .cx, .cy { position: fixed; background: rgba(92, 200, 255, 0.22); z-index: 49; pointer-events: none; display: none; }
+    .cx { height: 1px; width: 100%; left: 0; }
+    .cy { width: 1px; height: 100%; top: 0; }
+    .coords {
+      position: fixed; left: 14px; bottom: 14px; z-index: 50;
+      font-size: 11px; color: var(--cyan); letter-spacing: 0.08em;
+      border: 1px solid var(--line2); padding: 6px 10px; background: rgba(10, 31, 60, 0.72);
+      display: none;
+    }
+
+    /* Drawing sheet */
+    .sheet {
+      position: relative; max-width: 960px; margin: 40px auto; padding: 34px 38px 34px;
+      border: 1px solid var(--line2);
+      box-shadow: 0 0 0 6px rgba(10, 31, 60, 0.4), 0 0 60px rgba(0, 0, 0, 0.4);
+    }
+    .mark { position: absolute; width: 16px; height: 16px; border: 1px solid var(--cyan); }
+    .mark.tl { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+    .mark.tr { top: -1px; right: -1px; border-left: none; border-bottom: none; }
+    .mark.bl { bottom: -1px; left: -1px; border-right: none; border-top: none; }
+    .mark.br { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+    .topbar { display: flex; justify-content: space-between; font-size: 11px; color: var(--dim); letter-spacing: 0.1em; padding-bottom: 14px; border-bottom: 1px solid var(--line2); }
+    .topbar .cyan { color: var(--cyan); }
+
+    /* Hero */
+    .hero { padding: 40px 0 18px; }
+    .eyebrow { font-size: 11px; letter-spacing: 0.32em; color: var(--cyan); text-transform: uppercase; margin-bottom: 14px; }
+    .name { font-family: "Oswald", sans-serif; font-weight: 600; font-size: clamp(40px, 9vw, 96px); line-height: 0.96; letter-spacing: 0.01em; text-transform: uppercase; }
+
+    .dimrow { display: flex; align-items: center; gap: 14px; margin: 22px 0 16px; color: var(--cyan); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; }
+    .dimrow .node { white-space: nowrap; color: var(--dim); }
+    .dimline { flex: 1; height: 1px; background: var(--cyan); position: relative; transform: scaleX(0); transform-origin: center; transition: transform 1.1s cubic-bezier(0.16,1,0.3,1); }
+    .reveal.in .dimline { transform: scaleX(1); }
+    .dimline::before, .dimline::after { content: ""; position: absolute; top: -3.5px; width: 0; height: 0; border: 4px solid transparent; }
+    .dimline::before { left: 0; border-right-color: var(--cyan); }
+    .dimline::after { right: 0; border-left-color: var(--cyan); }
+    .dimline .cap { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: var(--bg); padding: 0 10px; white-space: nowrap; }
+
+    .lead { color: var(--dim); font-size: 14px; max-width: 64ch; }
+    .contact { margin-top: 18px; font-size: 12px; letter-spacing: 0.06em; color: var(--dim); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .lnk { color: var(--cyan); text-decoration: none; border-bottom: 1px dashed transparent; transition: border-color 0.2s; }
+    .lnk:hover { border-bottom-color: var(--cyan); }
+    .sep { color: var(--line2); }
+
+    /* Detail boxes */
+    .detail { border: 1px solid var(--line2); margin: 34px 0; padding: 30px 24px 24px; position: relative; }
+    .detail > .tab {
+      position: absolute; top: -9px; left: 18px; background: var(--bg); padding: 0 10px;
+      font-size: 11px; letter-spacing: 0.2em; color: var(--cyan); text-transform: uppercase;
+    }
+    .detail > .ref { position: absolute; top: -9px; right: 18px; background: var(--bg); padding: 0 10px; font-size: 10px; letter-spacing: 0.14em; color: var(--dim); }
+
+    .profile-text { color: var(--dim); font-size: 14px; max-width: 70ch; }
+    .profile-text b { color: var(--ink); font-weight: 500; }
+
+    /* Experience timeline */
+    .xp { display: grid; grid-template-columns: 104px 1fr; }
+    .xp .left { text-align: right; padding: 16px 16px 16px 0; border-right: 1px solid var(--line2); }
+    .xp .left .yr { font-size: 12px; color: var(--cyan); }
+    .xp .left .pn { font-size: 10px; color: var(--dim); margin-top: 5px; letter-spacing: 0.1em; }
+    .xp .right { padding: 16px 0 16px 20px; position: relative; }
+    .xp .right::before { content: ""; position: absolute; left: 0; top: 23px; width: 12px; height: 1px; background: var(--cyan); }
+    .xp .right::after { content: ""; position: absolute; left: -3px; top: 20px; width: 6px; height: 6px; background: var(--bg); border: 1px solid var(--cyan); transform: rotate(45deg); }
+    .xp + .xp .left, .xp + .xp .right { border-top: 1px dashed var(--line2); }
+    .xp .role { font-family: "Oswald", sans-serif; font-size: 19px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.1; }
+    .xp .co { font-size: 12px; color: var(--cyan); margin-top: 3px; }
+    .xp .ds { font-size: 13px; color: var(--dim); margin-top: 9px; line-height: 1.6; max-width: 64ch; }
+    @media (max-width: 600px) {
+      .xp { grid-template-columns: 1fr; }
+      .xp .left { text-align: left; border-right: none; border-bottom: 1px dashed var(--line2); padding: 14px 0 10px; }
+      .xp .right { padding-left: 0; }
+      .xp .right::before, .xp .right::after { display: none; }
+    }
+
+    /* Parts list (expertise) */
+    .bom { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .bom th, .bom td { border: 1px solid var(--line2); padding: 9px 12px; text-align: left; }
+    .bom th { color: var(--cyan); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 500; }
+    .bom td.no { width: 46px; text-align: center; color: var(--dim); }
+    .bom td.cls { color: var(--cyan); width: 130px; }
+    .bom tr:hover td { background: rgba(92, 200, 255, 0.06); }
+
+    /* Gauges (languages) */
+    .gauges { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 40px; }
+    @media (max-width: 600px) { .gauges { grid-template-columns: 1fr; } }
+    .gauge .top { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; margin-bottom: 6px; }
+    .gauge .top .lv { color: var(--cyan); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; }
+    .gauge .scale { height: 16px; border: 1px solid var(--line2); position: relative; }
+    .gauge .fill { height: 100%; width: 0; background-image: repeating-linear-gradient(45deg, var(--cyan) 0 2px, transparent 2px 7px); transition: width 1.4s cubic-bezier(0.16,1,0.3,1); }
+    .gauge .ticks { display: flex; justify-content: space-between; font-size: 9px; color: var(--dim); margin-top: 3px; }
+
+    /* Records (education / credentials) */
+    .recs { display: grid; grid-template-columns: 1fr 1fr; gap: 30px 40px; }
+    @media (max-width: 600px) { .recs { grid-template-columns: 1fr; } }
+    .recs .h { font-size: 10px; letter-spacing: 0.18em; color: var(--cyan); text-transform: uppercase; margin-bottom: 14px; border-bottom: 1px solid var(--line2); padding-bottom: 8px; }
+    .rec { display: grid; grid-template-columns: 64px 1fr; gap: 12px; padding: 9px 0; }
+    .rec .code { font-size: 11px; color: var(--dim); }
+    .rec .t { font-size: 13.5px; color: var(--ink); }
+    .rec .m { font-size: 11px; color: var(--dim); margin-top: 2px; }
+
+    /* Title block */
+    .tb { width: 100%; border-collapse: collapse; margin-top: 34px; font-size: 12px; }
+    .tb td { border: 1px solid var(--line2); padding: 9px 12px; vertical-align: top; }
+    .tb .lbl { font-size: 9px; letter-spacing: 0.16em; color: var(--cyan); text-transform: uppercase; display: block; margin-bottom: 3px; }
+    .tb .big { font-family: "Oswald", sans-serif; font-size: 18px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.02em; }
+
+    .foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 18px; font-size: 11px; color: var(--dim); letter-spacing: 0.08em; }
+
+    /* reveals */
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16,1,0.3,1); }
+    .reveal.in { opacity: 1; transform: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal, .dimline, .gauge .fill { transition: none; }
+      .reveal { opacity: 1; transform: none; }
+      .dimline { transform: scaleX(1); }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="cx" id="cx"></div>
+  <div class="cy" id="cy"></div>
+  <div class="coords" id="coords">X:0000 Y:0000</div>
+
+  <main class="sheet">
+    <span class="mark tl"></span><span class="mark tr"></span><span class="mark bl"></span><span class="mark br"></span>
+
+    <div class="topbar">
+      <span>DWG. NO. <span class="cyan">CV-2026-JV</span> &nbsp;·&nbsp; REV <span class="cyan">A</span></span>
+      <span>SCALE 1:1 &nbsp;·&nbsp; SHEET 1 OF 1</span>
+    </div>
+
+    <!-- Hero -->
+    <header class="hero reveal">
+      <div class="eyebrow">Technical Product Owner</div>
+      <h1 class="name">Jordy<br>Vandewalle</h1>
+      <div class="dimrow">
+        <span class="node">Business</span>
+        <span class="dimline"><span class="cap">⟷ Bridged</span></span>
+        <span class="node">Development</span>
+      </div>
+      <p class="lead">Translating technology into value — turning complex ideas into impactful digital
+         solutions, from Magento engineering to product strategy.</p>
+      <div class="contact">
+        <span>LOC: Valencia, ES</span>
+        <span class="sep">|</span>
+        <a class="lnk js-mail" data-e="am9yZHkudmFuZGV3YWxsZUBob3RtYWlsLmNvbQ==" href="#" rel="nofollow">EMAIL</a>
+        <span class="sep">|</span>
+        <a class="lnk" href="https://www.linkedin.com/in/jordy-vandewalle" target="_blank" rel="noopener">LINKEDIN</a>
+      </div>
+    </header>
+
+    <!-- Profile -->
+    <section class="detail reveal">
+      <span class="tab">Detail A — Profile</span>
+      <span class="ref">NOTE 01</span>
+      <p class="profile-text">At the intersection of technology, strategy, and user experience, I lead
+        product innovation with a <b>developer's precision</b> and a <b>business leader's foresight</b>.
+        With roots in Magento development and experience representing PHPro across European markets, I now
+        shape product strategy for high-performance eCommerce platforms — championing agile delivery and
+        value with every sprint.</p>
+    </section>
+
+    <!-- Experience -->
+    <section class="detail reveal">
+      <span class="tab">Detail B — Experience</span>
+      <span class="ref">ASSEMBLY</span>
+      <div class="xp">
+        <div class="left"><div class="yr">2025 → NOW</div><div class="pn">REF P-01</div></div>
+        <div class="right">
+          <div class="role">Product Owner</div>
+          <div class="co">PHPro · Valencia</div>
+          <div class="ds">Bridging business goals and technical execution, leveraging my Magento background
+             and client engagement to drive product success. I lead cross-functional teams delivering
+             high-impact features aligned with customer needs and market trends.</div>
+        </div>
+      </div>
+      <div class="xp">
+        <div class="left"><div class="yr">2022 → 2025</div><div class="pn">REF P-02</div></div>
+        <div class="right">
+          <div class="role">Magento 2 Developer</div>
+          <div class="co">PHPro · Valencia</div>
+          <div class="ds">Worked on Obelink — a large Magento 2 marketplace with integrations such as Mirakl
+             and Akeneo, built on the Hyvä theme.</div>
+        </div>
+      </div>
+      <div class="xp">
+        <div class="left"><div class="yr">2021 → 2022</div><div class="pn">REF P-03</div></div>
+        <div class="right">
+          <div class="role">Junior Magento 2 &amp; PHP Developer</div>
+          <div class="co">Your Mind Our Work · Roeselare</div>
+          <div class="ds">Built and maintained Magento 2 / PHP e-commerce solutions, growing from
+             fundamentals into full feature delivery.</div>
+        </div>
+      </div>
+      <div class="xp">
+        <div class="left"><div class="yr">2020</div><div class="pn">REF P-04</div></div>
+        <div class="right">
+          <div class="role">Front-end Development Intern</div>
+          <div class="co">Cwb Spain · Valencia</div>
+          <div class="ds">Front-end development internship abroad — where the Spanish chapter began.</div>
+        </div>
+      </div>
+      <div class="xp">
+        <div class="left"><div class="yr">2018 → 2021</div><div class="pn">REF P-05</div></div>
+        <div class="right">
+          <div class="role">Sales Assistant</div>
+          <div class="co">BESTSELLER · Roeselare</div>
+          <div class="ds">Customer-facing retail role that sharpened communication and commercial instincts.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Expertise — parts list -->
+    <section class="detail reveal">
+      <span class="tab">Detail C — Expertise</span>
+      <span class="ref">PARTS LIST</span>
+      <table class="bom">
+        <thead><tr><th class="no">No.</th><th>Component</th><th class="cls">Class</th></tr></thead>
+        <tbody>
+          <tr><td class="no">01</td><td>Product Vision</td><td class="cls">Strategy</td></tr>
+          <tr><td class="no">02</td><td>Roadmapping</td><td class="cls">Strategy</td></tr>
+          <tr><td class="no">03</td><td>Stakeholder Communication</td><td class="cls">Process</td></tr>
+          <tr><td class="no">04</td><td>Cross-Functional Leadership</td><td class="cls">Process</td></tr>
+          <tr><td class="no">05</td><td>Agile Delivery</td><td class="cls">Process</td></tr>
+          <tr><td class="no">06</td><td>Magento 2</td><td class="cls">Technical</td></tr>
+          <tr><td class="no">07</td><td>eCommerce Strategy</td><td class="cls">Domain</td></tr>
+          <tr><td class="no">08</td><td>Client Engagement</td><td class="cls">Process</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Languages — gauges -->
+    <section class="detail reveal">
+      <span class="tab">Detail D — Languages</span>
+      <span class="ref">TOLERANCES</span>
+      <div class="gauges">
+        <div class="gauge"><div class="top"><span>Dutch</span><span class="lv">Native · 100%</span></div><div class="scale"><div class="fill" data-w="100%"></div></div><div class="ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div></div>
+        <div class="gauge"><div class="top"><span>English</span><span class="lv">Full Prof · 92%</span></div><div class="scale"><div class="fill" data-w="92%"></div></div><div class="ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div></div>
+        <div class="gauge"><div class="top"><span>Spanish</span><span class="lv">Professional · 75%</span></div><div class="scale"><div class="fill" data-w="75%"></div></div><div class="ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div></div>
+        <div class="gauge"><div class="top"><span>Italian</span><span class="lv">Limited · 45%</span></div><div class="scale"><div class="fill" data-w="45%"></div></div><div class="ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div></div>
+        <div class="gauge"><div class="top"><span>French</span><span class="lv">Limited · 40%</span></div><div class="scale"><div class="fill" data-w="40%"></div></div><div class="ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div></div>
+        <div class="gauge"><div class="top"><span>German</span><span class="lv">Elementary · 22%</span></div><div class="scale"><div class="fill" data-w="22%"></div></div><div class="ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div></div>
+      </div>
+    </section>
+
+    <!-- Education & Credentials -->
+    <section class="detail reveal">
+      <span class="tab">Detail E — Education &amp; Credentials</span>
+      <span class="ref">REF DOCS</span>
+      <div class="recs">
+        <div>
+          <div class="h">Education</div>
+          <div class="rec"><div class="code">EDU-01</div><div><div class="t">Bachelor's, Applied Computer Sciences</div><div class="m">Hogeschool West-Vlaanderen (VIVES) · 2015–2020</div></div></div>
+          <div class="rec"><div class="code">EDU-02</div><div><div class="t">Mobile Apps for Android</div><div class="m">Universitat Politècnica de València · 2017</div></div></div>
+          <div class="rec"><div class="code">EDU-03</div><div><div class="t">Marketing &amp; Entrepreneurship</div><div class="m">Burgerschool Roeselare · 2009–2014</div></div></div>
+        </div>
+        <div>
+          <div class="h">Credentials</div>
+          <div class="rec"><div class="code">CRT-01</div><div><div class="t">Adobe Commerce Front-end Developer Expert</div><div class="m">AD0-E710</div></div></div>
+          <div class="rec"><div class="code">CRT-02</div><div><div class="t">Basic Knowledge of Business Management</div><div class="m">Certificate</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Title block -->
+    <table class="tb">
+      <tr>
+        <td style="width:50%"><span class="lbl">Project</span>Curriculum Vitæ</td>
+        <td><span class="lbl">Drawn by</span>J. Vandewalle</td>
+        <td><span class="lbl">Date</span>2026.06</td>
+      </tr>
+      <tr>
+        <td><span class="lbl">Title</span><span class="big">Jordy Vandewalle</span><br>Technical Product Owner</td>
+        <td><span class="lbl">Scale</span>1 : 1</td>
+        <td><span class="lbl">Sheet</span>1 OF 1</td>
+      </tr>
+      <tr>
+        <td><span class="lbl">Location</span>Valencia, España</td>
+        <td><span class="lbl">Units</span>Human</td>
+        <td><span class="lbl">Rev</span>A</td>
+      </tr>
+    </table>
+
+    <div class="foot">
+      <span>© MMXXVI · ALL DIMENSIONS APPROXIMATE</span>
+      <a class="lnk" href="index.html">◄ BACK TO GALLERY</a>
+    </div>
+  </main>
+
+  <script>
+    // Assemble email at runtime so the raw address never appears in the page source
+    document.querySelectorAll(".js-mail").forEach(a => { a.href = "mailto:" + atob(a.dataset.e); });
+
+    // Reveals + gauge fills
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add("in");
+          e.target.querySelectorAll(".fill").forEach(f => f.style.width = f.dataset.w);
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.18 });
+    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+    // CAD crosshair + coordinate readout (fine pointer, motion allowed)
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!reduce && window.matchMedia("(pointer: fine)").matches) {
+      const cx = document.getElementById("cx"), cy = document.getElementById("cy"), co = document.getElementById("coords");
+      cx.style.display = cy.style.display = co.style.display = "block";
+      const pad = (n) => String(n).padStart(4, "0");
+      window.addEventListener("pointermove", (e) => {
+        cx.style.top = e.clientY + "px";
+        cy.style.left = e.clientX + "px";
+        co.textContent = "X:" + pad(e.clientX) + " Y:" + pad(e.clientY);
+      });
+    }
+  </script>
+</body>
+</html>

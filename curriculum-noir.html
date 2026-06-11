@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jordy Vandewalle — Curriculum Vitæ</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="apple-touch-icon" href="favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0e0d0b;
+      --paper: #ece6d9;
+      --muted: #8b8475;
+      --line: rgba(236, 230, 217, 0.14);
+      --accent: #c8a24c;
+      --accent-2: #b5654d;
+      --mx: 50%;
+      --my: 50%;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--paper);
+      font-family: "Inter", system-ui, sans-serif;
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+      position: relative;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* serif display */
+    .ff { font-family: "Fraunces", Georgia, serif; }
+
+    /* ---------- Atmosphere layers ---------- */
+    .aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .aurora span {
+      position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.22; will-change: transform;
+    }
+    .aurora .a1 { width: 46vw; height: 46vw; background: #3d5a52; top: -10vh; left: -8vw; animation: au 24s ease-in-out infinite; }
+    .aurora .a2 { width: 38vw; height: 38vw; background: #6b3b4f; bottom: -12vh; right: -6vw; animation: au 30s ease-in-out infinite reverse; }
+    .aurora .a3 { width: 30vw; height: 30vw; background: var(--accent); top: 42%; left: 55%; opacity: 0.12; animation: au 34s ease-in-out infinite; }
+    @keyframes au {
+      0%,100% { transform: translate(0,0) scale(1); }
+      50%     { transform: translate(4vw, 6vh) scale(1.15); }
+    }
+
+    .spotlight {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      background: radial-gradient(520px circle at var(--mx) var(--my), rgba(200,162,76,0.09), transparent 62%);
+      transition: background 0.1s linear;
+    }
+
+    .grain {
+      position: fixed; inset: 0; width: 100%; height: 100%;
+      z-index: 60; pointer-events: none; opacity: 0.05; mix-blend-mode: overlay;
+    }
+
+    .progress {
+      position: fixed; top: 0; left: 0; height: 2px; width: 0;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      z-index: 70;
+    }
+
+    .cursor {
+      position: fixed; top: 0; left: 0; width: 30px; height: 30px;
+      border: 1px solid var(--paper); border-radius: 50%;
+      z-index: 9999; pointer-events: none; mix-blend-mode: difference;
+      transition: width 0.3s ease, height 0.3s ease, background 0.3s ease, opacity 0.3s ease;
+      margin: 0; /* transform set in JS */
+    }
+    .cursor.big { width: 64px; height: 64px; background: rgba(236,230,217,0.15); }
+
+    /* ---------- Page ---------- */
+    .page { position: relative; z-index: 3; max-width: 1080px; margin: 0 auto; padding: 0 6vw 14vh; }
+
+    .masthead {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 28px 0 22px; border-bottom: 1px solid var(--line);
+    }
+    .monogram { font-size: 22px; font-weight: 400; letter-spacing: 0.04em; }
+    .label { font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--muted); }
+
+    /* ---------- Hero ---------- */
+    .hero { padding: 16vh 0 13vh; }
+    .eyebrow { display: flex; align-items: center; gap: 16px; margin-bottom: 30px; }
+    .eyebrow::before { content: ""; width: 46px; height: 1px; background: var(--accent); }
+
+    .name {
+      font-weight: 300; font-size: clamp(52px, 13vw, 168px); line-height: 0.9;
+      letter-spacing: -0.025em; margin-bottom: 30px;
+    }
+    .name .word { display: inline-block; white-space: nowrap; }
+    .ltr-wrap { display: inline-block; overflow: hidden; vertical-align: bottom; }
+    .ltr { display: inline-block; transform: translateY(115%); transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1); }
+    .name.in .ltr { transform: translateY(0); }
+
+    .lead { font-size: clamp(19px, 2.6vw, 30px); font-weight: 300; line-height: 1.4; max-width: 18ch; }
+    .lead em { font-style: italic; color: var(--accent); }
+
+    .hero-meta { margin-top: 36px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px; font-size: 14px; color: var(--muted); }
+    .hero-meta .dot { color: var(--accent); }
+
+    .link { position: relative; color: var(--paper); text-decoration: none; }
+    .link::after {
+      content: ""; position: absolute; left: 0; bottom: -3px; height: 1px; width: 100%;
+      background: currentColor; transform: scaleX(0); transform-origin: right;
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .link:hover { color: var(--accent); }
+    .link:hover::after { transform: scaleX(1); transform-origin: left; }
+
+    /* ---------- Sections ---------- */
+    .sec { padding: 7vh 0; }
+    .sec-head { display: flex; align-items: baseline; gap: 22px; margin-bottom: 8px; }
+    .sec-num {
+      font-size: clamp(26px, 4vw, 46px); font-weight: 300; color: transparent;
+      -webkit-text-stroke: 1px var(--accent); opacity: 0.85;
+    }
+    .sec-title { font-size: clamp(22px, 3.4vw, 38px); font-weight: 400; }
+    .rule { height: 1px; background: var(--line); transform: scaleX(0); transform-origin: left; transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1); margin-bottom: 46px; }
+    .sec.in .rule { transform: scaleX(1); }
+
+    /* profile */
+    .profile-text { font-size: clamp(17px, 2vw, 21px); max-width: 62ch; color: #d8d2c4; }
+    .profile-text::first-letter {
+      font-family: "Fraunces", serif; float: left; font-size: 4.4em; line-height: 0.72;
+      padding: 6px 14px 0 0; color: var(--accent); font-weight: 400;
+    }
+
+    /* experience */
+    .entry {
+      display: grid; grid-template-columns: 150px 1fr; gap: 34px;
+      padding: 30px 0; border-top: 1px solid var(--line);
+      transition: padding-left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .entry:last-child { border-bottom: 1px solid var(--line); }
+    .entry:hover { padding-left: 14px; }
+    .entry-year { font-size: 13px; letter-spacing: 0.06em; color: var(--muted); padding-top: 10px; transition: color 0.4s ease; }
+    .entry:hover .entry-year { color: var(--accent); }
+    .entry h3 { font-size: clamp(22px, 3vw, 32px); font-weight: 400; line-height: 1.15; }
+    .entry h3 .at { color: var(--muted); font-style: italic; font-size: 0.62em; }
+    .entry p { margin-top: 12px; color: #b8b2a4; max-width: 56ch; font-size: 16px; }
+
+    @media (max-width: 620px) {
+      .entry { grid-template-columns: 1fr; gap: 8px; }
+      .entry-year { padding-top: 0; }
+    }
+
+    /* expertise */
+    .tags { display: flex; flex-wrap: wrap; gap: 0 28px; }
+    .tags span {
+      font-family: "Fraunces", serif; font-size: clamp(20px, 3vw, 30px); font-weight: 300;
+      padding: 10px 0; position: relative; color: #cfc9bb; cursor: default; transition: color 0.3s ease;
+    }
+    .tags span:hover { color: var(--accent); }
+    .tags span:not(:last-child)::after { content: "·"; color: var(--accent); margin-left: 28px; opacity: 0.5; }
+
+    /* languages */
+    .langs { display: grid; grid-template-columns: 1fr 1fr; gap: 30px 64px; }
+    @media (max-width: 620px) { .langs { grid-template-columns: 1fr; } }
+    .lang-row { }
+    .lang-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+    .lang-top .nm { font-family: "Fraunces", serif; font-size: 22px; font-weight: 400; }
+    .lang-top .lv { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+    .lang-bar { height: 1px; background: var(--line); position: relative; }
+    .lang-bar > i { position: absolute; left: 0; top: 0; height: 1px; width: 0; background: var(--accent); transition: width 1.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    .lang-bar > i::after { content: ""; position: absolute; right: -3px; top: -2px; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+
+    /* education + credentials */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; }
+    @media (max-width: 720px) { .two-col { grid-template-columns: 1fr; gap: 48px; } }
+    .col-label { font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--accent); margin-bottom: 26px; }
+    .rec { padding: 18px 0; border-top: 1px solid var(--line); }
+    .rec h4 { font-family: "Fraunces", serif; font-size: 20px; font-weight: 400; }
+    .rec .meta { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+    /* colophon */
+    .colophon { margin-top: 12vh; padding-top: 30px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; color: var(--muted); font-size: 12px; letter-spacing: 0.06em; }
+
+    /* reveals */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 1s ease, transform 1s cubic-bezier(0.16, 1, 0.3, 1); }
+    .reveal.in { opacity: 1; transform: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .aurora span { animation: none; }
+      .reveal, .ltr, .rule { transition: none; }
+      .reveal { opacity: 1; transform: none; }
+      .ltr { transform: none; }
+      .rule { transform: scaleX(1); }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <!-- atmosphere -->
+  <div class="aurora"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+  <div class="spotlight"></div>
+  <div class="progress" id="progress"></div>
+  <div class="cursor" id="cursor"></div>
+  <svg class="grain" xmlns="http://www.w3.org/2000/svg">
+    <filter id="grainf"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/></filter>
+    <rect width="100%" height="100%" filter="url(#grainf)"/>
+  </svg>
+
+  <div class="page">
+    <!-- masthead -->
+    <div class="masthead">
+      <span class="monogram ff">JV</span>
+      <span class="label">Curriculum Vitæ — MMXXVI</span>
+    </div>
+
+    <!-- hero -->
+    <header class="hero">
+      <div class="eyebrow"><span class="label">Technical Product Owner</span></div>
+      <h1 class="name ff" id="name">Jordy Vandewalle</h1>
+      <p class="lead reveal ff">Translating <em>tech into value</em> — bridging business &amp; development.</p>
+      <div class="hero-meta reveal">
+        <span>Valencia, España</span>
+        <span class="dot">✦</span>
+        <span>Six languages</span>
+        <span class="dot">✦</span>
+        <a class="link" data-cursor href="mailto:jordy.vandewalle@hotmail.com">jordy.vandewalle@hotmail.com</a>
+        <span class="dot">✦</span>
+        <a class="link" data-cursor href="https://www.linkedin.com/in/jordy-vandewalle" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </header>
+
+    <!-- 01 profile -->
+    <section class="sec" id="s1">
+      <div class="sec-head"><span class="sec-num ff">01</span><span class="sec-title ff">Profile</span></div>
+      <div class="rule"></div>
+      <p class="profile-text reveal">At the intersection of technology, strategy, and user experience, I lead product
+        innovation with a developer's precision and a business leader's foresight. I transform complex ideas
+        into impactful digital solutions — bridging the gap between what users need and what development teams
+        build. With roots in Magento development and experience representing PHPro across European markets, I now
+        drive product strategy for high-performance eCommerce platforms, championing agile delivery and value
+        with every sprint.</p>
+    </section>
+
+    <!-- 02 experience -->
+    <section class="sec" id="s2">
+      <div class="sec-head"><span class="sec-num ff">02</span><span class="sec-title ff">Experience</span></div>
+      <div class="rule"></div>
+
+      <div class="reveal">
+        <div class="entry" data-cursor>
+          <div class="entry-year">2025 — Present</div>
+          <div>
+            <h3 class="ff">Product Owner <span class="at">/ PHPro</span></h3>
+            <p>Bridging business goals and technical execution, leveraging my Magento background and client
+               engagement to drive product success. I lead cross-functional teams delivering high-impact
+               features aligned with customer needs and market trends.</p>
+          </div>
+        </div>
+        <div class="entry" data-cursor>
+          <div class="entry-year">2022 — 2025</div>
+          <div>
+            <h3 class="ff">Magento 2 Developer <span class="at">/ PHPro</span></h3>
+            <p>Worked on Obelink — a large Magento 2 marketplace with integrations such as Mirakl and Akeneo,
+               built on the Hyvä theme.</p>
+          </div>
+        </div>
+        <div class="entry" data-cursor>
+          <div class="entry-year">2021 — 2022</div>
+          <div>
+            <h3 class="ff">Junior Magento 2 &amp; PHP Developer <span class="at">/ Your Mind Our Work</span></h3>
+            <p>Built and maintained Magento 2 / PHP e-commerce solutions in Roeselare, Belgium.</p>
+          </div>
+        </div>
+        <div class="entry" data-cursor>
+          <div class="entry-year">2020</div>
+          <div>
+            <h3 class="ff">Front-end Development Intern <span class="at">/ Cwb Spain</span></h3>
+            <p>Front-end internship in Valencia — where the Spanish chapter began.</p>
+          </div>
+        </div>
+        <div class="entry" data-cursor>
+          <div class="entry-year">2018 — 2021</div>
+          <div>
+            <h3 class="ff">Sales Assistant <span class="at">/ BESTSELLER</span></h3>
+            <p>Customer-facing retail role that sharpened communication and commercial instincts.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 expertise -->
+    <section class="sec" id="s3">
+      <div class="sec-head"><span class="sec-num ff">03</span><span class="sec-title ff">Expertise</span></div>
+      <div class="rule"></div>
+      <div class="tags reveal">
+        <span>Stakeholder Communication</span>
+        <span>Cross-Functional Leadership</span>
+        <span>Product Vision</span>
+        <span>Roadmapping</span>
+        <span>Agile Delivery</span>
+        <span>Magento 2</span>
+        <span>eCommerce Strategy</span>
+        <span>Client Engagement</span>
+      </div>
+    </section>
+
+    <!-- 04 languages -->
+    <section class="sec" id="s4">
+      <div class="sec-head"><span class="sec-num ff">04</span><span class="sec-title ff">Languages</span></div>
+      <div class="rule"></div>
+      <div class="langs reveal">
+        <div class="lang-row"><div class="lang-top"><span class="nm">Dutch</span><span class="lv">Native</span></div><div class="lang-bar"><i data-w="100%"></i></div></div>
+        <div class="lang-row"><div class="lang-top"><span class="nm">English</span><span class="lv">Full Professional</span></div><div class="lang-bar"><i data-w="92%"></i></div></div>
+        <div class="lang-row"><div class="lang-top"><span class="nm">Spanish</span><span class="lv">Professional</span></div><div class="lang-bar"><i data-w="75%"></i></div></div>
+        <div class="lang-row"><div class="lang-top"><span class="nm">Italian</span><span class="lv">Limited Working</span></div><div class="lang-bar"><i data-w="45%"></i></div></div>
+        <div class="lang-row"><div class="lang-top"><span class="nm">French</span><span class="lv">Limited Working</span></div><div class="lang-bar"><i data-w="40%"></i></div></div>
+        <div class="lang-row"><div class="lang-top"><span class="nm">German</span><span class="lv">Elementary</span></div><div class="lang-bar"><i data-w="22%"></i></div></div>
+      </div>
+    </section>
+
+    <!-- 05 education + credentials -->
+    <section class="sec" id="s5">
+      <div class="sec-head"><span class="sec-num ff">05</span><span class="sec-title ff">Education &amp; Credentials</span></div>
+      <div class="rule"></div>
+      <div class="two-col reveal">
+        <div>
+          <div class="col-label">Education</div>
+          <div class="rec"><h4>Bachelor's, Applied Computer Sciences</h4><div class="meta">Hogeschool West-Vlaanderen (VIVES) · 2015–2020</div></div>
+          <div class="rec"><h4>Mobile Apps for Android</h4><div class="meta">Universitat Politècnica de València (UPV) · 2017</div></div>
+          <div class="rec"><h4>Marketing &amp; Entrepreneurship</h4><div class="meta">Burgerschool Roeselare · 2009–2014</div></div>
+        </div>
+        <div>
+          <div class="col-label">Credentials</div>
+          <div class="rec"><h4>Adobe Commerce Front-end Developer Expert</h4><div class="meta">AD0-E710</div></div>
+          <div class="rec"><h4>Basic Knowledge of Business Management</h4><div class="meta">Certificate</div></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="colophon">
+      <span>Jordy Vandewalle — Valencia, España</span>
+      <span>Set in Fraunces &amp; Inter · MMXXVI</span>
+    </div>
+  </div>
+
+  <script>
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const fine = window.matchMedia("(pointer: fine)").matches;
+
+    // ---- Kinetic name: split into words & letters, masked reveal ----
+    (function () {
+      const name = document.getElementById("name");
+      const words = name.textContent.trim().split(" ");
+      name.textContent = "";
+      let i = 0;
+      words.forEach((word, wi) => {
+        const wEl = document.createElement("span");
+        wEl.className = "word";
+        for (const ch of word) {
+          const wrap = document.createElement("span");
+          wrap.className = "ltr-wrap";
+          const ltr = document.createElement("span");
+          ltr.className = "ltr";
+          ltr.textContent = ch;
+          ltr.style.transitionDelay = (i * 0.045) + "s";
+          wrap.appendChild(ltr);
+          wEl.appendChild(wrap);
+          i++;
+        }
+        name.appendChild(wEl);
+        if (wi < words.length - 1) name.appendChild(document.createTextNode(" "));
+      });
+      requestAnimationFrame(() => requestAnimationFrame(() => name.classList.add("in")));
+    })();
+
+    // ---- Scroll reveals + section rules ----
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.18 });
+    document.querySelectorAll(".reveal, .sec").forEach(el => io.observe(el));
+
+    // ---- Language bars ----
+    const barIO = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.querySelectorAll(".lang-bar > i").forEach(b => b.style.width = b.dataset.w);
+          barIO.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    const langs = document.querySelector(".langs");
+    if (langs) barIO.observe(langs);
+
+    // ---- Scroll progress bar ----
+    const progress = document.getElementById("progress");
+    const onScroll = () => {
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0) + "%";
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+
+    // ---- Spotlight + trailing cursor ring (pointer-fine only) ----
+    const cursor = document.getElementById("cursor");
+    if (fine && !reduce) {
+      let rx = window.innerWidth / 2, ry = window.innerHeight / 2, tx = rx, ty = ry;
+      const root = document.documentElement;
+      window.addEventListener("pointermove", (e) => {
+        tx = e.clientX; ty = e.clientY;
+        root.style.setProperty("--mx", tx + "px");
+        root.style.setProperty("--my", ty + "px");
+      });
+      (function loop() {
+        rx += (tx - rx) * 0.18;
+        ry += (ty - ry) * 0.18;
+        cursor.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+        requestAnimationFrame(loop);
+      })();
+      document.querySelectorAll("[data-cursor], a, .tags span").forEach(el => {
+        el.addEventListener("pointerenter", () => cursor.classList.add("big"));
+        el.addEventListener("pointerleave", () => cursor.classList.remove("big"));
+      });
+    } else {
+      cursor.remove();
+    }
+  </script>
+</body>
+</html>

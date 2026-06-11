@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jordy Vandewalle — Technical Product Owner</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="apple-touch-icon" href="favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1a2e;
+      --paper: #fff7ed;
+      --yellow: #ffd93d;
+      --pink: #ff6bcb;
+      --cyan: #4fd1e0;
+      --lime: #a3e635;
+      --purple: #a78bfa;
+      --orange: #ff8c42;
+      --shadow: 6px 6px 0 var(--ink);
+      --shadow-lg: 10px 10px 0 var(--ink);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Space Grotesk", system-ui, sans-serif;
+      background: var(--paper);
+      background-image:
+        radial-gradient(var(--ink) 1.5px, transparent 1.5px);
+      background-size: 28px 28px;
+      color: var(--ink);
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, .display { font-family: "Fredoka", system-ui, sans-serif; }
+
+    /* ---------- Floating shapes (clickable & breakable) ---------- */
+    .shapes { position: fixed; inset: 0; z-index: 40; pointer-events: none; overflow: hidden; }
+    .shape { position: absolute; will-change: transform; }
+    .shape-escape { transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1); will-change: transform; }
+    .shape-art {
+      pointer-events: auto;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    .shape-art:hover  { transform: scale(1.15); }
+    .shape-art:active { transform: scale(0.9); }
+    .shape-art.circle   { border-radius: 50%; border: 3px solid var(--ink); }
+    .shape-art.square   { border: 3px solid var(--ink); border-radius: 6px; }
+    .shape-art.triangle { width: 0 !important; height: 0 !important; filter: drop-shadow(3px 3px 0 var(--ink)); }
+
+    @keyframes float {
+      0%,100% { transform: translateY(0) rotate(0deg); }
+      50%     { transform: translateY(-26px) rotate(18deg); }
+    }
+    @keyframes popIn {
+      0%   { transform: scale(0) rotate(-40deg); }
+      70%  { transform: scale(1.18) rotate(10deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+
+    /* ---------- Layout ---------- */
+    .wrap { position: relative; z-index: 1; max-width: 920px; margin: 0 auto; padding: 56px 28px 90px; }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      background: var(--cyan);
+      border: 4px solid var(--ink);
+      border-radius: 28px;
+      box-shadow: var(--shadow-lg);
+      padding: 44px 36px;
+      text-align: center;
+      position: relative;
+      margin-bottom: 56px;
+    }
+    .hero .badge {
+      position: absolute;
+      top: -18px; left: 50%;
+      transform: translateX(-50%) rotate(-3deg);
+      background: var(--yellow);
+      border: 3px solid var(--ink);
+      border-radius: 999px;
+      padding: 6px 18px;
+      font-weight: 700;
+      font-size: 13px;
+      box-shadow: 3px 3px 0 var(--ink);
+      white-space: nowrap;
+    }
+    .avatar {
+      width: 124px; height: 124px;
+      border-radius: 26px;
+      border: 4px solid var(--ink);
+      margin: 14px auto 22px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: "Fredoka", sans-serif;
+      font-size: 50px; font-weight: 700; color: var(--ink);
+      background: var(--pink);
+      box-shadow: var(--shadow);
+      transform: rotate(-4deg);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .avatar:hover { transform: rotate(4deg) scale(1.05); }
+
+    .hero h1 { font-size: clamp(38px, 7vw, 64px); font-weight: 700; line-height: 1; letter-spacing: -1px; }
+    .hero .role { font-weight: 600; font-size: clamp(15px, 2.4vw, 19px); margin-top: 14px; }
+    .hero .role b { background: var(--lime); padding: 1px 8px; border: 2px solid var(--ink); border-radius: 8px; display: inline-block; }
+    .hero .location { margin-top: 12px; font-weight: 500; }
+
+    .contacts { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
+    .contacts a {
+      font-family: "Fredoka", sans-serif;
+      font-weight: 600;
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 14px;
+      padding: 11px 20px;
+      border: 3px solid var(--ink);
+      border-radius: 999px;
+      background: var(--paper);
+      box-shadow: 4px 4px 0 var(--ink);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s;
+    }
+    .contacts a:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ink); background: var(--yellow); }
+    .contacts a:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 var(--ink); }
+
+    /* ---------- Section titles ---------- */
+    .section-title {
+      font-family: "Fredoka", sans-serif;
+      font-size: 26px; font-weight: 700;
+      margin-bottom: 26px;
+      display: inline-block;
+      background: var(--ink);
+      color: var(--paper);
+      padding: 6px 18px;
+      border-radius: 12px;
+      transform: rotate(-1.5deg);
+    }
+    section { margin-bottom: 56px; }
+
+    /* ---------- Cards (shared) ---------- */
+    .box {
+      border: 4px solid var(--ink);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      background: var(--paper);
+      padding: 26px 30px;
+    }
+
+    .summary { font-size: 17px; background: var(--purple); }
+
+    /* ---------- Experience ---------- */
+    .jobs { display: flex; flex-direction: column; gap: 22px; }
+    .job { position: relative; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .job:nth-child(odd)  { transform: rotate(-1deg); }
+    .job:nth-child(even) { transform: rotate(1deg); }
+    .job:hover { transform: rotate(0deg) scale(1.02); box-shadow: var(--shadow-lg); }
+    .job:nth-child(4n+1) { background: var(--yellow); }
+    .job:nth-child(4n+2) { background: var(--cyan); }
+    .job:nth-child(4n+3) { background: var(--lime); }
+    .job:nth-child(4n+4) { background: var(--orange); }
+
+    .job .company {
+      display: inline-block;
+      font-family: "Fredoka", sans-serif;
+      font-weight: 600; font-size: 12px;
+      text-transform: uppercase; letter-spacing: 1px;
+      background: var(--ink); color: var(--paper);
+      padding: 3px 12px; border-radius: 999px; margin-bottom: 8px;
+    }
+    .job h3 { font-size: 22px; }
+    .job .meta { font-weight: 600; font-size: 13px; opacity: 0.7; margin-bottom: 8px; }
+    .job p { font-size: 15px; font-weight: 500; }
+
+    /* ---------- Grid ---------- */
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+
+    .panel h4 { font-size: 19px; margin-bottom: 16px; }
+    .skills-box { background: var(--pink); }
+    .lang-box  { background: var(--cyan); }
+    .edu-box   { background: var(--lime); }
+    .cert-box  { background: var(--yellow); }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+    .chip {
+      font-family: "Fredoka", sans-serif;
+      font-weight: 600; font-size: 13px;
+      padding: 8px 14px;
+      border: 3px solid var(--ink);
+      border-radius: 999px;
+      background: var(--paper);
+      box-shadow: 3px 3px 0 var(--ink);
+      transition: transform 0.15s ease;
+      cursor: default;
+    }
+    .chip:hover { transform: translateY(-3px) rotate(-3deg); }
+
+    /* Language bars */
+    .lang { margin-bottom: 14px; }
+    .lang-head { display: flex; justify-content: space-between; font-weight: 600; font-size: 14px; margin-bottom: 5px; }
+    .lang-head span:last-child { font-size: 12px; opacity: 0.7; }
+    .bar { height: 14px; border-radius: 999px; background: var(--paper); border: 3px solid var(--ink); overflow: hidden; }
+    .bar > i {
+      display: block; height: 100%;
+      background: repeating-linear-gradient(45deg, var(--pink) 0 8px, var(--purple) 8px 16px);
+      width: 0;
+      transition: width 1.1s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .item { padding: 12px 0; border-bottom: 3px dashed rgba(26,26,46,0.25); }
+    .item:last-child { border-bottom: none; }
+    .item h4 { font-size: 16px; margin-bottom: 2px; }
+    .item .meta { font-size: 13px; font-weight: 600; opacity: 0.7; }
+
+    footer {
+      text-align: center; font-family: "Fredoka", sans-serif; font-weight: 600;
+      margin-top: 36px;
+      background: var(--ink); color: var(--paper);
+      display: inline-block; padding: 10px 22px; border-radius: 999px;
+      position: relative; left: 50%; transform: translateX(-50%) rotate(-1.5deg);
+    }
+
+    /* ---------- Scroll reveal (bouncy) ---------- */
+    .reveal { opacity: 0; transform: translateY(40px) scale(0.97); transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .reveal.in { opacity: 1; transform: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .shape { animation: none; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shapes" id="shapes"></div>
+
+  <div class="wrap">
+    <!-- HERO -->
+    <header class="hero reveal">
+      <div class="badge">✨ Open to cool products</div>
+      <div class="avatar" id="avatar" title="Boop me!">JV</div>
+      <h1>Jordy Vandewalle</h1>
+      <div class="role">Technical Product Owner — <b>turning tech into value</b></div>
+      <div class="location">📍 Valencia, Spain · 🌍 6 languages</div>
+      <div class="contacts">
+        <a href="mailto:jordy.vandewalle@hotmail.com">✉️ Email me</a>
+        <a href="https://www.linkedin.com/in/jordy-vandewalle" target="_blank" rel="noopener">💼 LinkedIn</a>
+      </div>
+    </header>
+
+    <!-- SUMMARY -->
+    <section class="reveal">
+      <div class="section-title">👋 Hey there</div>
+      <div class="box summary">
+        At the intersection of technology, strategy, and user experience, I lead product
+        innovation with a developer's precision and a business leader's foresight. I transform
+        complex ideas into impactful digital solutions — bridging the gap between what users need
+        and what development teams build. With roots in Magento development and experience
+        representing PHPro across European markets, I drive product strategy for high-performance
+        eCommerce platforms. I champion agile delivery, prioritize value, and make sure every
+        sprint moves us closer to a product users love. 🚀
+      </div>
+    </section>
+
+    <!-- EXPERIENCE -->
+    <section class="reveal">
+      <div class="section-title">💼 The Journey</div>
+      <div class="jobs">
+        <div class="job box">
+          <span class="company">PHPro</span>
+          <h3>Product Owner</h3>
+          <div class="meta">Mar 2025 – Present · Valencia, Spain</div>
+          <p>Bridging business goals and technical execution, leveraging my Magento background and
+             client engagement to drive product success. I lead cross-functional teams delivering
+             high-impact features aligned with customer needs and market trends.</p>
+        </div>
+        <div class="job box">
+          <span class="company">PHPro</span>
+          <h3>Magento 2 Developer</h3>
+          <div class="meta">May 2022 – Mar 2025 · Valencia, Spain</div>
+          <p>Worked on Obelink — a large Magento 2 marketplace with integrations like Mirakl and
+             Akeneo, built on the Hyvä theme.</p>
+        </div>
+        <div class="job box">
+          <span class="company">Your Mind Our Work</span>
+          <h3>Junior Magento 2 &amp; PHP Developer</h3>
+          <div class="meta">Jan 2021 – Apr 2022 · Roeselare, Belgium</div>
+          <p>Built and maintained Magento 2 / PHP e-commerce solutions.</p>
+        </div>
+        <div class="job box">
+          <span class="company">Cwb Spain</span>
+          <h3>Intern — Front-end Development</h3>
+          <div class="meta">Feb 2020 – May 2020 · Valencia, Spain</div>
+          <p>Front-end development internship abroad — where the Valencia love story began. 🧡</p>
+        </div>
+        <div class="job box">
+          <span class="company">BESTSELLER</span>
+          <h3>Sales Assistant</h3>
+          <div class="meta">Feb 2018 – Jan 2021 · Roeselare, Belgium</div>
+          <p>Customer-facing retail role that sharpened communication and commercial instincts.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SKILLS + LANGUAGES -->
+    <section class="reveal">
+      <div class="section-title">🧰 Toolkit &amp; Tongues</div>
+      <div class="grid">
+        <div class="panel box skills-box">
+          <h4>Core Skills</h4>
+          <div class="chips">
+            <span class="chip">Stakeholder Comms</span>
+            <span class="chip">Team Leadership</span>
+            <span class="chip">Product Vision</span>
+            <span class="chip">Roadmapping</span>
+            <span class="chip">Agile Delivery</span>
+            <span class="chip">Magento 2</span>
+            <span class="chip">eCommerce Strategy</span>
+          </div>
+        </div>
+        <div class="panel box lang-box">
+          <h4>Languages</h4>
+          <div class="lang"><div class="lang-head"><span>🇧🇪 Dutch</span><span>Native</span></div><div class="bar"><i data-w="100%"></i></div></div>
+          <div class="lang"><div class="lang-head"><span>🇬🇧 English</span><span>Full Professional</span></div><div class="bar"><i data-w="92%"></i></div></div>
+          <div class="lang"><div class="lang-head"><span>🇪🇸 Spanish</span><span>Professional</span></div><div class="bar"><i data-w="75%"></i></div></div>
+          <div class="lang"><div class="lang-head"><span>🇮🇹 Italian</span><span>Limited Working</span></div><div class="bar"><i data-w="45%"></i></div></div>
+          <div class="lang"><div class="lang-head"><span>🇫🇷 French</span><span>Limited Working</span></div><div class="bar"><i data-w="40%"></i></div></div>
+          <div class="lang"><div class="lang-head"><span>🇩🇪 German</span><span>Elementary</span></div><div class="bar"><i data-w="22%"></i></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EDUCATION + CERTS -->
+    <section class="reveal">
+      <div class="section-title">🎓 Smarts &amp; Stamps</div>
+      <div class="grid">
+        <div class="panel box edu-box">
+          <h4>Education</h4>
+          <div class="item">
+            <h4>Bachelor's, Applied Computer Sciences</h4>
+            <div class="meta">Hogeschool West-Vlaanderen (VIVES) · 2015–2020</div>
+          </div>
+          <div class="item">
+            <h4>Mobile Apps for Android</h4>
+            <div class="meta">Universitat Politècnica de València (UPV) · 2017</div>
+          </div>
+          <div class="item">
+            <h4>Marketing &amp; Entrepreneurship</h4>
+            <div class="meta">Burgerschool Roeselare · 2009–2014</div>
+          </div>
+        </div>
+        <div class="panel box cert-box">
+          <h4>Certifications</h4>
+          <div class="item">
+            <h4>Adobe Commerce Front-end Developer Expert</h4>
+            <div class="meta">AD0-E710</div>
+          </div>
+          <div class="item">
+            <h4>Basic Knowledge of Business Management</h4>
+            <div class="meta">Certificate</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>Crafted with ☕, CSS &amp; a bit of chaos</footer>
+  </div>
+
+  <script>
+    // Scroll reveal
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+    // Animate language bars
+    const barIO = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.querySelectorAll(".bar > i").forEach(b => b.style.width = b.dataset.w);
+          barIO.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    document.querySelectorAll(".lang-box").forEach(p => barIO.observe(p));
+
+    // Surprise! Confetti burst when you "boop" the avatar
+    const COLORS = ["#ffd93d", "#ff6bcb", "#4fd1e0", "#a3e635", "#a78bfa", "#ff8c42"];
+    function confettiBurst(x, y) {
+      for (let i = 0; i < 36; i++) {
+        const p = document.createElement("div");
+        const size = 8 + Math.floor(i % 4) * 3;
+        p.style.cssText = `position:fixed;left:${x}px;top:${y}px;width:${size}px;height:${size}px;
+          background:${COLORS[i % COLORS.length]};border:2px solid #1a1a2e;z-index:999;
+          border-radius:${i % 2 ? "50%" : "3px"};pointer-events:none;`;
+        document.body.appendChild(p);
+        const angle = (Math.PI * 2 * i) / 36;
+        const dist = 90 + (i % 5) * 32;
+        const dx = Math.cos(angle) * dist;
+        const dy = Math.sin(angle) * dist;
+        p.animate([
+          { transform: "translate(0,0) rotate(0deg)", opacity: 1 },
+          { transform: `translate(${dx}px, ${dy + 120}px) rotate(${dx}deg)`, opacity: 0 }
+        ], { duration: 900 + (i % 6) * 90, easing: "cubic-bezier(0.22,1,0.36,1)" })
+          .onfinish = () => p.remove();
+      }
+    }
+    const avatar = document.getElementById("avatar");
+    avatar.addEventListener("click", () => {
+      const r = avatar.getBoundingClientRect();
+      confettiBurst(r.left + r.width / 2, r.top + r.height / 2);
+    });
+
+    // ---------- Breakable, cursor-dodging floating shapes ----------
+    const SHAPE_TYPES = ["circle", "square", "triangle"];
+    const shapesLayer = document.getElementById("shapes");
+    const content = document.querySelector(".wrap");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const rand = (min, max) => min + Math.random() * (max - min);
+    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+    // Pick an x (px) inside a side gutter so shapes never sit over the content column.
+    function gutterX(size) {
+      const r = content.getBoundingClientRect();
+      const m = 10;
+      const sides = [];
+      if (r.left >= size + m * 2) sides.push("left");
+      if (window.innerWidth - r.right >= size + m * 2) sides.push("right");
+      if (sides.length === 0) {
+        // Narrow viewport, no gutter room: layer sits above content, so still clickable.
+        return rand(m, window.innerWidth - size - m);
+      }
+      return pick(sides) === "left"
+        ? rand(m, r.left - size - m)
+        : rand(r.right + m, window.innerWidth - size - m);
+    }
+
+    function spawnShape() {
+      const type = pick(SHAPE_TYPES);
+      const color = pick(COLORS);
+      const size = rand(44, 74);
+
+      const wrap = document.createElement("div");
+      wrap.className = "shape";
+      wrap.style.left = gutterX(size) + "px";
+      wrap.style.top = rand(8, 84) + "vh";
+      wrap.style.animation =
+        `float ${rand(6, 11).toFixed(1)}s ease-in-out infinite ${Math.random() < 0.5 ? "reverse" : ""}`;
+      wrap.style.animationDelay = `-${rand(0, 5).toFixed(1)}s`;
+
+      // Middle layer carries the "escape" nudge so it never fights the float / scale / pop transforms.
+      const escape = document.createElement("div");
+      escape.className = "shape-escape";
+
+      const art = document.createElement("div");
+      art.className = "shape-art " + type;
+      art.dataset.color = color;
+      if (type === "triangle") {
+        art.style.borderLeft = (size * 0.5) + "px solid transparent";
+        art.style.borderRight = (size * 0.5) + "px solid transparent";
+        art.style.borderBottom = (size * 0.9) + "px solid " + color;
+      } else {
+        art.style.width = size + "px";
+        art.style.height = size + "px";
+        art.style.background = color;
+      }
+      // pop-in entrance
+      art.style.animation = "popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)";
+      art.addEventListener("click", (e) => { e.stopPropagation(); breakShape(wrap, art); });
+
+      // Dodge the cursor: lean away, but capped small so the pointer stays over it and it's clickable.
+      if (!reduceMotion) {
+        let ex = 0, ey = 0;
+        const flee = Math.min(26, size * 0.34); // stay within the shape's own radius
+        escape.addEventListener("pointermove", (e) => {
+          const r = art.getBoundingClientRect();
+          const baseCx = r.left + r.width / 2 - ex;  // remove current offset to get the true centre
+          const baseCy = r.top + r.height / 2 - ey;
+          let dx = baseCx - e.clientX;
+          let dy = baseCy - e.clientY;
+          const len = Math.hypot(dx, dy) || 1;
+          ex = (dx / len) * flee;
+          ey = (dy / len) * flee;
+          escape.style.transform = `translate(${ex}px, ${ey}px)`;
+        });
+        escape.addEventListener("pointerleave", () => {
+          ex = ey = 0;
+          escape.style.transform = "translate(0, 0)";
+        });
+      }
+
+      escape.appendChild(art);
+      wrap.appendChild(escape);
+      shapesLayer.appendChild(wrap);
+    }
+
+    function breakShape(wrap, art) {
+      if (wrap.dataset.broken) return;   // ignore double-clicks mid-break
+      wrap.dataset.broken = "1";
+
+      const r = art.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      const color = art.dataset.color;
+
+      // shatter into fragments
+      for (let i = 0; i < 14; i++) {
+        const fs = rand(7, 16);
+        const frag = document.createElement("div");
+        frag.style.cssText =
+          `position:fixed;left:${cx}px;top:${cy}px;width:${fs}px;height:${fs}px;` +
+          `background:${color};border:2px solid var(--ink);z-index:999;pointer-events:none;` +
+          `border-radius:${Math.random() < 0.4 ? "50%" : "3px"};`;
+        document.body.appendChild(frag);
+        const ang = Math.random() * Math.PI * 2;
+        const dist = rand(60, 175);
+        const dx = Math.cos(ang) * dist;
+        const dy = Math.sin(ang) * dist;
+        frag.animate([
+          { transform: "translate(0,0) rotate(0deg)", opacity: 1 },
+          { transform: `translate(${dx}px, ${dy + 90}px) rotate(${rand(-360, 360)}deg)`, opacity: 0 }
+        ], { duration: rand(600, 1000), easing: "cubic-bezier(0.22, 1, 0.36, 1)" })
+          .onfinish = () => frag.remove();
+      }
+
+      // pop the original out, then render a fresh shape elsewhere
+      art.animate([
+        { transform: "scale(1)", opacity: 1 },
+        { transform: "scale(0) rotate(40deg)", opacity: 0 }
+      ], { duration: 220, easing: "ease-in" }).onfinish = () => {
+        wrap.remove();
+        spawnShape();
+      };
+    }
+
+    // seed the initial set
+    for (let i = 0; i < 6; i++) spawnShape();
+    // A little welcome pop
+    window.addEventListener("load", () => {
+      const r = avatar.getBoundingClientRect();
+      setTimeout(() => confettiBurst(r.left + r.width / 2, r.top + r.height / 2), 600);
+    });
+  </script>
+</body>
+</html>

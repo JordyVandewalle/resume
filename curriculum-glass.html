@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jordy Vandewalle — Glass</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="apple-touch-icon" href="favicon.svg" />
+  <style>
+    :root {
+      --text: #1c1c1e;
+      --text2: rgba(60, 60, 67, 0.62);
+      --glass: rgba(255, 255, 255, 0.42);
+      --glass-strong: rgba(255, 255, 255, 0.62);
+      --brd: rgba(255, 255, 255, 0.65);
+      --row: rgba(255, 255, 255, 0.35);
+      --shadow: 0 14px 44px rgba(31, 38, 135, 0.18);
+      --track: rgba(120, 120, 128, 0.22);
+      --b1: #ff8fb1; --b2: #7aa8ff; --b3: #b78cff; --b4: #ffd27a; --b5: #6ee7d6;
+      --base: #eaf0ff;
+    }
+    body.dark {
+      --text: #f5f5f7;
+      --text2: rgba(235, 235, 245, 0.6);
+      --glass: rgba(40, 42, 55, 0.42);
+      --glass-strong: rgba(50, 52, 66, 0.6);
+      --brd: rgba(255, 255, 255, 0.16);
+      --row: rgba(255, 255, 255, 0.06);
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+      --track: rgba(120, 120, 128, 0.3);
+      --b1: #ff5c8a; --b2: #4f7cff; --b3: #9b5cff; --b4: #ff9d3c; --b5: #1fd1b5;
+      --base: #0a0a18;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      color: var(--text);
+      background: var(--base);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+      transition: background 0.6s ease, color 0.4s ease;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ---------- Wallpaper ---------- */
+    .blobs { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+    .blobs span { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.85; will-change: transform; transition: background 0.6s ease; }
+    .blobs .x1 { width: 44vw; height: 44vw; background: var(--b1); top: -8vh;  left: -6vw;  animation: drift 26s ease-in-out infinite; }
+    .blobs .x2 { width: 40vw; height: 40vw; background: var(--b2); top: 8vh;   right: -8vw; animation: drift 32s ease-in-out infinite reverse; }
+    .blobs .x3 { width: 36vw; height: 36vw; background: var(--b3); bottom: -10vh; left: 18vw; animation: drift 30s ease-in-out infinite; }
+    .blobs .x4 { width: 26vw; height: 26vw; background: var(--b4); top: 40%; right: 22vw; opacity: 0.7; animation: drift 36s ease-in-out infinite reverse; }
+    .blobs .x5 { width: 24vw; height: 24vw; background: var(--b5); bottom: 6vh; right: 6vw; opacity: 0.7; animation: drift 28s ease-in-out infinite; }
+    @keyframes drift {
+      0%,100% { transform: translate(0,0) scale(1); }
+      50%     { transform: translate(3vw, 5vh) scale(1.12); }
+    }
+
+    /* parallax offset applied via JS variables */
+    .blobs.parallax { transform: translate(var(--px, 0px), var(--py, 0px)); transition: transform 0.4s ease-out; }
+
+    /* ---------- Layout ---------- */
+    .home { position: relative; z-index: 2; max-width: 1060px; margin: 0 auto; padding: 12px 20px 150px; }
+
+    /* Dynamic Island */
+    .island {
+      width: 132px; height: 36px; margin: 10px auto 6px;
+      background: #000; border-radius: 22px; display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 13px; font-weight: 500; gap: 8px; overflow: hidden; white-space: nowrap;
+      cursor: default; transition: width 0.5s cubic-bezier(0.5, 1.6, 0.4, 1), height 0.4s ease;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    .island .lbl { opacity: 0; max-width: 0; transition: opacity 0.3s ease 0.15s, max-width 0.4s ease; }
+    .island .dotg { width: 9px; height: 9px; border-radius: 50%; background: #34c759; box-shadow: 0 0 8px #34c759; flex: none; }
+    .island:hover { width: 320px; height: 40px; }
+    .island:hover .lbl { opacity: 1; max-width: 260px; }
+
+    /* Status bar */
+    .statusbar { display: flex; justify-content: space-between; align-items: center; padding: 4px 14px 16px; font-weight: 600; font-size: 15px; }
+    .statusbar .right { display: flex; align-items: center; gap: 7px; }
+    .bars { display: flex; align-items: flex-end; gap: 2px; height: 12px; }
+    .bars i { width: 3px; background: var(--text); border-radius: 1px; }
+    .bars i:nth-child(1){height:4px} .bars i:nth-child(2){height:7px} .bars i:nth-child(3){height:10px} .bars i:nth-child(4){height:12px}
+    .battery { width: 24px; height: 12px; border: 1.5px solid var(--text); border-radius: 3px; position: relative; opacity: 0.9; }
+    .battery::after { content:""; position:absolute; right:-3px; top:3px; width:2px; height:6px; background: var(--text); border-radius:0 1px 1px 0; }
+    .battery i { position:absolute; inset:1.5px; width: 70%; background: var(--text); border-radius: 1px; }
+
+    /* ---------- Widgets ---------- */
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; grid-auto-flow: row dense; }
+    .widget {
+      background: var(--glass);
+      backdrop-filter: blur(30px) saturate(180%);
+      -webkit-backdrop-filter: blur(30px) saturate(180%);
+      border: 1px solid var(--brd);
+      border-radius: 28px;
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,0.4);
+      padding: 24px;
+      transition: transform 0.3s ease;
+    }
+    .w-title { font-size: 13px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; color: var(--text2); margin-bottom: 16px; }
+
+    .w-profile { grid-column: span 4; }
+    .w-exp { grid-column: span 2; grid-row: span 2; }
+    .w-lang { grid-column: span 2; }
+    .w-skills { grid-column: span 2; }
+    .w-edu { grid-column: span 2; }
+    .w-cred { grid-column: span 2; }
+
+    @media (max-width: 820px) {
+      .grid { grid-template-columns: 1fr; }
+      .widget { grid-column: auto !important; grid-row: auto !important; }
+    }
+
+    /* Profile */
+    .profile { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+    .avatar {
+      width: 92px; height: 92px; border-radius: 26px; flex: none;
+      background: linear-gradient(135deg, #ff8fb1, #b78cff 55%, #7aa8ff);
+      display: flex; align-items: center; justify-content: center; color: #fff;
+      font-size: 36px; font-weight: 700; box-shadow: 0 10px 30px rgba(123,108,255,0.4);
+    }
+    .profile-info { flex: 1; min-width: 200px; }
+    .profile-info h1 { font-size: clamp(26px, 4vw, 38px); font-weight: 700; letter-spacing: -0.02em; }
+    .profile-info .role { color: var(--text2); font-size: 16px; margin-top: 2px; }
+    .profile-info .loc { font-size: 14px; color: var(--text2); margin-top: 8px; display: flex; align-items: center; gap: 6px; }
+
+    /* iOS toggle */
+    .appearance { display: flex; align-items: center; gap: 10px; }
+    .appearance .ico { font-size: 16px; }
+    .switch { position: relative; width: 52px; height: 32px; flex: none; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; inset: 0; background: rgba(120,120,128,0.32); border-radius: 999px; transition: background 0.3s ease; cursor: pointer; }
+    .slider::before { content: ""; position: absolute; width: 28px; height: 28px; left: 2px; top: 2px; background: #fff; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.3); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
+    .switch input:checked + .slider { background: #34c759; }
+    .switch input:checked + .slider::before { transform: translateX(20px); }
+
+    /* Experience list */
+    .list { display: flex; flex-direction: column; gap: 4px; }
+    .row { display: flex; align-items: center; gap: 14px; padding: 12px; border-radius: 16px; transition: background 0.2s ease; }
+    .row:hover { background: var(--row); }
+    .row .ic { width: 40px; height: 40px; border-radius: 12px; flex: none; display: flex; align-items: center; justify-content: center; font-size: 19px; color: #fff; }
+    .row .tx { flex: 1; min-width: 0; }
+    .row .tx b { font-weight: 600; font-size: 16px; display: block; }
+    .row .tx span { font-size: 13px; color: var(--text2); }
+    .row .chev { color: var(--text2); font-size: 18px; opacity: 0.6; }
+
+    /* Language rings */
+    .rings { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px 8px; }
+    .ring { text-align: center; }
+    .ring svg { width: 78px; height: 78px; }
+    .ring .trk { fill: none; stroke: var(--track); stroke-width: 8; }
+    .ring .prg { fill: none; stroke-width: 8; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; stroke-dasharray: 214; stroke-dashoffset: 214; transition: stroke-dashoffset 1.5s cubic-bezier(0.16,1,0.3,1); }
+    .ring .nm { font-size: 14px; font-weight: 600; margin-top: 2px; }
+    .ring .lv { font-size: 11px; color: var(--text2); }
+
+    /* Skills app icons */
+    .apps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px 10px; }
+    .app { text-align: center; cursor: default; }
+    .app .tile {
+      width: 100%; aspect-ratio: 1; border-radius: 22px; display: flex; align-items: center; justify-content: center;
+      font-size: 26px; color: #fff; margin: 0 auto 6px; box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .app:hover .tile { transform: translateY(-4px) scale(1.06); }
+    .app .nm { font-size: 11px; color: var(--text2); line-height: 1.25; }
+
+    /* Education / credentials */
+    .mini { display: flex; flex-direction: column; gap: 2px; }
+    .mini .item { padding: 11px 0; border-bottom: 1px solid var(--row); }
+    .mini .item:last-child { border-bottom: none; }
+    .mini .item b { font-weight: 600; font-size: 15px; }
+    .mini .item span { font-size: 13px; color: var(--text2); display: block; }
+
+    /* Dock */
+    .dock {
+      position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 30;
+      display: flex; gap: 14px; padding: 12px 16px; border-radius: 28px;
+      background: var(--glass-strong);
+      backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%);
+      border: 1px solid var(--brd); box-shadow: var(--shadow);
+    }
+    .dock a {
+      width: 54px; height: 54px; border-radius: 16px; display: flex; align-items: center; justify-content: center;
+      font-size: 24px; text-decoration: none; color: #fff; position: relative;
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .dock a:hover { transform: translateY(-10px) scale(1.12); }
+    .dock a .tip {
+      position: absolute; top: -38px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,0.8); color: #fff; font-size: 12px; padding: 5px 10px; border-radius: 8px;
+      white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+    }
+    .dock a:hover .tip { opacity: 1; }
+
+    .reveal { opacity: 0; transform: translateY(22px) scale(0.98); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.16,1,0.3,1); }
+    .reveal.in { opacity: 1; transform: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .blobs span { animation: none; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+    }
+
+    /* gradient helpers */
+    .g1{background:linear-gradient(135deg,#ff8fb1,#ff5c8a)} .g2{background:linear-gradient(135deg,#7aa8ff,#4f7cff)}
+    .g3{background:linear-gradient(135deg,#6ee7d6,#1fd1b5)} .g4{background:linear-gradient(135deg,#b78cff,#9b5cff)}
+    .g5{background:linear-gradient(135deg,#ffd27a,#ff9d3c)} .g6{background:linear-gradient(135deg,#ff9d8c,#ff5c8a)}
+    .g7{background:linear-gradient(135deg,#8fd3ff,#5ca8ff)} .g8{background:linear-gradient(135deg,#a0e57a,#5fc94e)}
+  </style>
+</head>
+<body>
+  <!-- shared gradient defs for rings -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <linearGradient id="rg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8fb1"/><stop offset="1" stop-color="#ff5c8a"/></linearGradient>
+      <linearGradient id="rg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7aa8ff"/><stop offset="1" stop-color="#4f7cff"/></linearGradient>
+      <linearGradient id="rg3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6ee7d6"/><stop offset="1" stop-color="#1fd1b5"/></linearGradient>
+      <linearGradient id="rg4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b78cff"/><stop offset="1" stop-color="#9b5cff"/></linearGradient>
+      <linearGradient id="rg5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd27a"/><stop offset="1" stop-color="#ff9d3c"/></linearGradient>
+      <linearGradient id="rg6" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff9d8c"/><stop offset="1" stop-color="#ff5c8a"/></linearGradient>
+    </defs>
+  </svg>
+
+  <div class="blobs parallax" id="blobs">
+    <span class="x1"></span><span class="x2"></span><span class="x3"></span><span class="x4"></span><span class="x5"></span>
+  </div>
+
+  <div class="home">
+    <!-- Dynamic Island -->
+    <div class="island"><span class="dotg"></span><span class="lbl">Available for select products</span></div>
+
+    <!-- Status bar -->
+    <div class="statusbar">
+      <span id="clock">9:41</span>
+      <span class="right">
+        <span class="bars"><i></i><i></i><i></i><i></i></span>
+        <svg width="17" height="13" viewBox="0 0 17 13" fill="none"><path d="M8.5 11.5 1 4.2A10.6 10.6 0 0 1 16 4.2L8.5 11.5Z" stroke="currentColor" stroke-width="1.3" opacity="0.9"/></svg>
+        <span class="battery"><i></i></span>
+      </span>
+    </div>
+
+    <div class="grid">
+      <!-- PROFILE -->
+      <section class="widget w-profile reveal">
+        <div class="profile">
+          <div class="avatar">JV</div>
+          <div class="profile-info">
+            <h1>Jordy Vandewalle</h1>
+            <div class="role">Technical Product Owner · Bridging Business &amp; Development</div>
+            <div class="loc">📍 Valencia, España · 🌍 6 languages</div>
+          </div>
+          <div class="appearance">
+            <span class="ico">☀️</span>
+            <label class="switch"><input type="checkbox" id="theme" /><span class="slider"></span></label>
+            <span class="ico">🌙</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- EXPERIENCE -->
+      <section class="widget w-exp reveal">
+        <div class="w-title">Experience</div>
+        <div class="list">
+          <div class="row">
+            <div class="ic g4">🚀</div>
+            <div class="tx"><b>Product Owner</b><span>PHPro · 2025 — Present</span></div>
+            <div class="chev">›</div>
+          </div>
+          <div class="row">
+            <div class="ic g2">🛠️</div>
+            <div class="tx"><b>Magento 2 Developer</b><span>PHPro · 2022 — 2025</span></div>
+            <div class="chev">›</div>
+          </div>
+          <div class="row">
+            <div class="ic g3">💻</div>
+            <div class="tx"><b>Junior Magento 2 &amp; PHP Dev</b><span>Your Mind Our Work · 2021 — 2022</span></div>
+            <div class="chev">›</div>
+          </div>
+          <div class="row">
+            <div class="ic g5">🎨</div>
+            <div class="tx"><b>Front-end Intern</b><span>Cwb Spain · 2020</span></div>
+            <div class="chev">›</div>
+          </div>
+          <div class="row">
+            <div class="ic g1">🛍️</div>
+            <div class="tx"><b>Sales Assistant</b><span>BESTSELLER · 2018 — 2021</span></div>
+            <div class="chev">›</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LANGUAGES -->
+      <section class="widget w-lang reveal">
+        <div class="w-title">Languages</div>
+        <div class="rings">
+          <div class="ring"><svg viewBox="0 0 80 80"><circle class="trk" cx="40" cy="40" r="34"/><circle class="prg" stroke="url(#rg1)" cx="40" cy="40" r="34" data-pct="100"/></svg><div class="nm">Dutch</div><div class="lv">Native</div></div>
+          <div class="ring"><svg viewBox="0 0 80 80"><circle class="trk" cx="40" cy="40" r="34"/><circle class="prg" stroke="url(#rg2)" cx="40" cy="40" r="34" data-pct="92"/></svg><div class="nm">English</div><div class="lv">Full Prof.</div></div>
+          <div class="ring"><svg viewBox="0 0 80 80"><circle class="trk" cx="40" cy="40" r="34"/><circle class="prg" stroke="url(#rg3)" cx="40" cy="40" r="34" data-pct="75"/></svg><div class="nm">Spanish</div><div class="lv">Professional</div></div>
+          <div class="ring"><svg viewBox="0 0 80 80"><circle class="trk" cx="40" cy="40" r="34"/><circle class="prg" stroke="url(#rg4)" cx="40" cy="40" r="34" data-pct="45"/></svg><div class="nm">Italian</div><div class="lv">Limited</div></div>
+          <div class="ring"><svg viewBox="0 0 80 80"><circle class="trk" cx="40" cy="40" r="34"/><circle class="prg" stroke="url(#rg5)" cx="40" cy="40" r="34" data-pct="40"/></svg><div class="nm">French</div><div class="lv">Limited</div></div>
+          <div class="ring"><svg viewBox="0 0 80 80"><circle class="trk" cx="40" cy="40" r="34"/><circle class="prg" stroke="url(#rg6)" cx="40" cy="40" r="34" data-pct="22"/></svg><div class="nm">German</div><div class="lv">Elementary</div></div>
+        </div>
+      </section>
+
+      <!-- SKILLS -->
+      <section class="widget w-skills reveal">
+        <div class="w-title">Expertise</div>
+        <div class="apps">
+          <div class="app"><div class="tile g4">🧭</div><div class="nm">Product Vision</div></div>
+          <div class="app"><div class="tile g2">🗺️</div><div class="nm">Roadmapping</div></div>
+          <div class="app"><div class="tile g1">🤝</div><div class="nm">Stakeholders</div></div>
+          <div class="app"><div class="tile g3">👥</div><div class="nm">Leadership</div></div>
+          <div class="app"><div class="tile g5">🔄</div><div class="nm">Agile</div></div>
+          <div class="app"><div class="tile g6">🛒</div><div class="nm">Magento 2</div></div>
+          <div class="app"><div class="tile g7">🛍️</div><div class="nm">eCommerce</div></div>
+          <div class="app"><div class="tile g8">♟️</div><div class="nm">Strategy</div></div>
+        </div>
+      </section>
+
+      <!-- EDUCATION -->
+      <section class="widget w-edu reveal">
+        <div class="w-title">Education</div>
+        <div class="mini">
+          <div class="item"><b>Bachelor's, Applied Computer Sciences</b><span>Hogeschool West-Vlaanderen (VIVES) · 2015–2020</span></div>
+          <div class="item"><b>Mobile Apps for Android</b><span>Universitat Politècnica de València · 2017</span></div>
+          <div class="item"><b>Marketing &amp; Entrepreneurship</b><span>Burgerschool Roeselare · 2009–2014</span></div>
+        </div>
+      </section>
+
+      <!-- CREDENTIALS -->
+      <section class="widget w-cred reveal">
+        <div class="w-title">Credentials</div>
+        <div class="mini">
+          <div class="item"><b>Adobe Commerce Front-end Developer Expert</b><span>AD0-E710</span></div>
+          <div class="item"><b>Basic Knowledge of Business Management</b><span>Certificate</span></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Dock -->
+  <nav class="dock">
+    <a class="g2" href="mailto:jordy.vandewalle@hotmail.com"><span class="tip">Email</span>✉️</a>
+    <a class="g4" href="https://www.linkedin.com/in/jordy-vandewalle" target="_blank" rel="noopener"><span class="tip">LinkedIn</span>in</a>
+    <a class="g3" href="https://maps.google.com/?q=Valencia,Spain" target="_blank" rel="noopener"><span class="tip">Valencia</span>📍</a>
+    <a class="g5" href="index.html"><span class="tip">All variants</span>▦</a>
+  </nav>
+
+  <script>
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // ----- Theme: init from system, toggle on switch -----
+    const themeToggle = document.getElementById("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (prefersDark) { document.body.classList.add("dark"); themeToggle.checked = true; }
+    themeToggle.addEventListener("change", () => {
+      document.body.classList.toggle("dark", themeToggle.checked);
+    });
+
+    // ----- Live clock -----
+    const clock = document.getElementById("clock");
+    function tick() {
+      const d = new Date();
+      let h = d.getHours(), m = d.getMinutes();
+      clock.textContent = h + ":" + (m < 10 ? "0" + m : m);
+    }
+    tick(); setInterval(tick, 10000);
+
+    // ----- Reveal + Activity rings -----
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add("in");
+          e.target.querySelectorAll(".prg").forEach(p => {
+            const pct = +p.dataset.pct;
+            p.style.strokeDashoffset = 214 * (1 - pct / 100);
+          });
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+    // ----- Wallpaper parallax -----
+    if (!reduce && window.matchMedia("(pointer: fine)").matches) {
+      const blobs = document.getElementById("blobs");
+      window.addEventListener("pointermove", (e) => {
+        const dx = (e.clientX / window.innerWidth - 0.5) * 40;
+        const dy = (e.clientY / window.innerHeight - 0.5) * 40;
+        blobs.style.setProperty("--px", dx + "px");
+        blobs.style.setProperty("--py", dy + "px");
+      });
+    }
+  </script>
+</body>
+</html>
